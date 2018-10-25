@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/costela/docker-volume-hetzner)](https://goreportcard.com/report/github.com/costela/docker-volume-hetzner)
+
 # Docker Volume Plugin for Hetzner Cloud
 
 This plugin manages docker volumes using Hetzner Cloud's volumes.
