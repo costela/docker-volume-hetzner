@@ -16,7 +16,7 @@ When using docker swarm, this should be done on all nodes in the cluster.
 **Important**: the plugin expects the docker node's `hostname` to match with the name of the server created
 on Hetzner Cloud. This should usually be the case, unless explicitly changed.
 
-### Plugin privileges
+#### Plugin privileges
 
 During installation, you will be prompted to accept the plugins's privilege requirements. The following are required:
 
