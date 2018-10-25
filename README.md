@@ -16,6 +16,14 @@ When using docker swarm, this should be done on all nodes in the cluster.
 **Important**: the plugin expects the docker node's `hostname` to match with the name of the server created
 on Hetzner Cloud. This should usually be the case, unless explicitly changed.
 
+### Plugin privileges
+
+During installation, you will be prompted to accept the plugins's privilege requirements. The following are required:
+
+- **network**: used for communicating with the Hetzner Cloud API
+- **mount[\/dev\/]**: needed for accessing the Hetzner Cloud Volumes (made available to the host as a SCSI device)
+- **allow-all-devices**: actually enable access to the volume devices mentioned above (since the devices cannot be known a priori)
+- **capabilities[CAP\_SYS\_ADMIN]**: needed for running `mount`
 
 ## Usage
 
