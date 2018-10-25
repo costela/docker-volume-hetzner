@@ -137,8 +137,6 @@ func (hd *hetznerDriver) Get(req *volume.GetRequest) (*volume.GetResponse, error
 
 	mountpoint, mounted := mounts[vol.LinuxDevice]
 	if mounted {
-		// v2 plugins (container-based) should answer with a path inside PropagatedMount
-		mountpoint = strings.TrimPrefix(mountpoint, propagatedMountPath)
 		status["mounted"] = true
 	}
 
@@ -224,7 +222,6 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 		if err != nil {
 			return nil, errors.Wrapf(err, "could not fetch server details for volume '%s'", prefixedName)
 		}
-		log.Debugf("fetched server info for volume '%s': %#v", prefixedName, volSrv)
 		vol.Server = volSrv
 	}
 
@@ -233,10 +230,9 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 		return nil, err
 	}
 
-	if vol.Server.Name != srv.Name {
-		log.Infof("maybe detaching volume '%s' from '%s'?", prefixedName, vol.Server.Name)
-		if vol.Server.Name != "" {
-
+	if vol.Server == nil || vol.Server.Name != srv.Name {
+		if vol.Server != nil && vol.Server.Name != "" {
+			log.Infof("detaching volume '%s' from '%s'", prefixedName, vol.Server.Name)
 			act, _, err := hd.client.Volume.Detach(context.Background(), vol)
 			if err != nil {
 				return nil, errors.Wrapf(err, "could not detach volume '%s' from '%s'", vol.Name, vol.Server.Name)
