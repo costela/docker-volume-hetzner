@@ -1,0 +1,69 @@
+{
+  "description": "Hetzner Cloud Volumes plugin for Docker",
+  "documentation": "https://github.com/costela/docker-volume-hetzner",
+  "entrypoint": [
+    "/plugin/docker-volume-hetzner"
+  ],
+  "env": [
+    {
+      "name": "apikey",
+      "description": "authentication token to use when accessing the Hetzner Cloud API",
+      "settable": ["value"],
+      "value": ""
+    },
+    {
+      "name": "location",
+      "description": "location in which to create volumes",
+      "settable": ["value"],
+      "value": ""
+    },
+    {
+      "name": "size",
+      "description": "standard size of the created volume in GB",
+      "settable": ["value"],
+      "value": "10"
+    },
+    {
+      "name": "prefix",
+      "description": "prefix to use when naming created volumes",
+      "settable": ["value"],
+      "value": "docker"
+    },
+    {
+      "name": "fstype",
+      "description": "filesystem type to be created on new volumes",
+      "settable": ["value"],
+      "value": "ext4"
+    },
+    {
+      "name": "loglevel",
+      "description": "log level passed to logrus",
+      "settable": ["value"],
+      "value": "warn"
+    }
+  ],
+  "interface": {
+    "socket": "hetzner.sock",
+    "types": [
+      "docker.volumedriver/1.0"
+    ]
+  },
+  "linux": {
+    "allowAllDevices": true,
+    "capabilities": ["CAP_SYS_ADMIN"]
+  },
+  "mounts": [
+    {
+      "description": "used to access the dynamically attached block devices",
+      "destination": "/dev",
+      "options": ["rbind","rshared"],
+      "name": "dev",
+      "source": "/dev/",
+      "type": "bind"
+    }
+  ],
+  "network": {
+    "type": "host"
+  },
+  "propagatedmount": "/mnt"
+}
