@@ -12,13 +12,6 @@ const socketAddress = "/run/docker/plugins/hetzner.sock"
 const propagatedMountPath = "/mnt"
 
 func main() {
-	// logFile, err := os.Create("/var/log/plugin.log")
-	// if err != nil {
-	// 	panic("could not open logfile")
-	// }
-	// defer logFile.Close()
-	// log.SetOutput(logFile)
-
 	log.SetFormatter(&bareFormatter{})
 
 	logLevel, err := log.ParseLevel(os.Getenv("loglevel"))
@@ -31,7 +24,9 @@ func main() {
 	hd := newHetznerDriver()
 	h := volume.NewHandler(hd)
 	log.Infof("listening on %s", socketAddress)
-	log.Error(h.ServeUnix(socketAddress, 0))
+	if err := h.ServeUnix(socketAddress, 0); err != nil {
+		log.Fatalf("error serving docker socket: %v", err)
+	}
 }
 
 type bareFormatter struct{}
