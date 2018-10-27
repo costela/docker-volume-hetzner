@@ -12,12 +12,6 @@
       "value": ""
     },
     {
-      "name": "location",
-      "description": "location in which to create volumes",
-      "settable": ["value"],
-      "value": ""
-    },
-    {
       "name": "size",
       "description": "standard size of the created volume in GB",
       "settable": ["value"],

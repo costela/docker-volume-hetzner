@@ -39,29 +39,27 @@ volumes:
 
 This will: 
 1. If the volume is new in the cluster:
-    1. create the Hetzner Cloud volume upon creation of the named volume
-    2. attach the created volume to the current node
-    3. format the volume (using `fstype`; see below)
-2. mount the volume on the node running its parent service
+    1. create the Hetzner Cloud (HC) volume upon creation of the docker volume
+    2. attach the created HC volume to the node requesting the creation (when using docker swarm, this will be the manager node being used)
+    3. format the HC volume (using `fstype` option; see below)
+2. mount the volume on the node running its parent service, if any
 
 ## Configuration
 
 The following options can be passed to the plugin via `docker plugin set` (all names **case-sensitive**):
 
 - **`apikey`** (**required**): authentication token to use when accessing the Hetzner Cloud API
-- **`location`** (**required**): location in which to create volumes (see also "limitations" below)
 - **`size`** (optional): size of the volume in GB (default: `10`)
 - **`fstype`** (optional): filesystem type to be created on new volumes. Currently supported values are `ext{2,3,4}` and `xfs` (default: `ext4`)
 - **`prefix`** (optional): prefix to use when naming created volumes (default: `docker`)
 - **`loglevel`** (optional): the amount of information that will be output by the plugin. Accepts any value supported by [logrus](github.com/sirupsen/logrus) (default: `warn`)
 
-Additionally, `location`, `size` and `fstype` can also be passed as options to the driver:
+Additionally, `size` and `fstype` can also be passed as options to the driver:
 ```yaml
 volumes:
   somevolume:
     driver: hetzner
     driver_opts:
-      location: nbg1
       size: '42'
       fstype: xfs
 ```
@@ -72,7 +70,7 @@ volumes:
 applies to the docker volumes using them. This also precludes concurrent use by multiple containers on the same node,
 since there is currently no way to enforce docker swarm services to be managed together (cf. kubernetes pods).
 - *Single location*: since volumes are currently bound to the location they were created in, this plugin will not
-be able to attach volumes if you have a swarm cluster across locations and a service migrates over the location
+be able to reattach a volume if you have a swarm cluster across locations and its service migrates over the location
 boundary.
 - *Volume resizing*: docker has no support for updating volume definitions. After a volume is created, its `size`
 option is currently ignored. This may be worked around in a future release.
