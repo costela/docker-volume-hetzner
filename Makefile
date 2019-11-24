@@ -16,7 +16,7 @@ rootfs: clean
 	docker container rm -vf tmp_plugin_build
 
 create: rootfs
-	docker plugin rm -f ${PLUGIN_NAME}:${PLUGIN_TAG} || true
+	docker plugin rm -f ${PLUGIN_NAME}:${PLUGIN_TAG} 2> /dev/null || true
 	docker plugin create ${PLUGIN_NAME}:${PLUGIN_TAG} ./plugin
 
 enable: create
@@ -25,4 +25,4 @@ enable: create
 push:  create
 	docker plugin push ${PLUGIN_NAME}:${PLUGIN_TAG}
 
-.PHONY: clean rootfs create
+.PHONY: clean rootfs create enable push

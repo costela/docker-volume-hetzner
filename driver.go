@@ -22,12 +22,12 @@ var trueVar = true
 var falseVar = false
 
 type hetznerDriver struct {
-	client *hcloud.Client
+	client hetznerClienter
 }
 
 func newHetznerDriver() *hetznerDriver {
 	return &hetznerDriver{
-		client: hcloud.NewClient(hcloud.WithToken(strings.TrimSpace(os.Getenv("apikey")))),
+		client: &hetznerClient{hcloud.NewClient(hcloud.WithToken(strings.TrimSpace(os.Getenv("apikey"))))},
 	}
 }
 
@@ -59,7 +59,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 		Labels:   map[string]string{"docker-volume-hetzner": ""},
 	}
 
-	resp, _, err := hd.client.Volume.Create(context.Background(), opts)
+	resp, _, err := hd.client.Volume().Create(context.Background(), opts)
 	if err != nil {
 		return errors.Wrapf(err, "could not create volume '%s'", prefixedName)
 	}
@@ -69,7 +69,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 
 	log.Infof("volume '%s' (%dGB) created on '%s'; attaching", prefixedName, size, srv.Name)
 
-	act, _, err := hd.client.Volume.Attach(context.Background(), resp.Volume, srv)
+	act, _, err := hd.client.Volume().Attach(context.Background(), resp.Volume, srv)
 	if err != nil {
 		return errors.Wrapf(err, "could not attach volume '%s' to '%s'", prefixedName, srv.Name)
 	}
@@ -80,7 +80,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 	log.Infof("volume '%s' attached to '%s'", prefixedName, srv.Name)
 
 	// be optimistic for now and ignore errors here
-	hd.client.Volume.ChangeProtection(context.Background(), resp.Volume, hcloud.VolumeChangeProtectionOpts{Delete: &trueVar})
+	_, _, _ = hd.client.Volume().ChangeProtection(context.Background(), resp.Volume, hcloud.VolumeChangeProtectionOpts{Delete: &trueVar})
 
 	log.Infof("formatting '%s' as '%s'", prefixedName, getOption("fstype", req.Options))
 	err = mkfs(resp.Volume.LinuxDevice, getOption("fstype", req.Options))
@@ -94,7 +94,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 func (hd *hetznerDriver) List() (*volume.ListResponse, error) {
 	log.Infof("got list request")
 
-	vols, err := hd.client.Volume.All(context.Background())
+	vols, err := hd.client.Volume().All(context.Background())
 	if err != nil {
 		return nil, errors.Wrap(err, "could not list all volumes")
 	}
@@ -124,7 +124,7 @@ func (hd *hetznerDriver) Get(req *volume.GetRequest) (*volume.GetResponse, error
 
 	log.Infof("fetching information for volume '%s'", prefixedName)
 
-	vol, _, err := hd.client.Volume.GetByName(context.Background(), prefixedName)
+	vol, _, err := hd.client.Volume().GetByName(context.Background(), prefixedName)
 	if err != nil || vol == nil {
 		return nil, errors.Wrapf(err, "could not get cloud volume '%s'", prefixedName)
 	}
@@ -160,13 +160,13 @@ func (hd *hetznerDriver) Remove(req *volume.RemoveRequest) error {
 
 	log.Infof("starting volume removal for '%s'", prefixedName)
 
-	vol, _, err := hd.client.Volume.GetByName(context.Background(), prefixedName)
+	vol, _, err := hd.client.Volume().GetByName(context.Background(), prefixedName)
 	if err != nil || vol == nil {
 		return errors.Wrapf(err, "could not get cloud volume '%s'", prefixedName)
 	}
 
 	log.Infof("disabling protection for '%s'", prefixedName)
-	act, _, err := hd.client.Volume.ChangeProtection(context.Background(), vol, hcloud.VolumeChangeProtectionOpts{Delete: &falseVar})
+	act, _, err := hd.client.Volume().ChangeProtection(context.Background(), vol, hcloud.VolumeChangeProtectionOpts{Delete: &falseVar})
 	if err != nil {
 		return errors.Wrapf(err, "could not unprotect volume '%s'", prefixedName)
 	}
@@ -176,7 +176,7 @@ func (hd *hetznerDriver) Remove(req *volume.RemoveRequest) error {
 
 	if vol.Server != nil && vol.Server.ID != 0 {
 		log.Infof("detaching volume '%s' (attached to %d)", prefixedName, vol.Server.ID)
-		act, _, err = hd.client.Volume.Detach(context.Background(), vol)
+		act, _, err = hd.client.Volume().Detach(context.Background(), vol)
 		if err != nil {
 			return errors.Wrapf(err, "could not detach volume '%s'", prefixedName)
 		}
@@ -185,7 +185,7 @@ func (hd *hetznerDriver) Remove(req *volume.RemoveRequest) error {
 		}
 	}
 
-	_, err = hd.client.Volume.Delete(context.Background(), vol)
+	_, err = hd.client.Volume().Delete(context.Background(), vol)
 	if err != nil {
 		return errors.Wrapf(err, "could not delete volume '%s'", prefixedName)
 	}
@@ -213,13 +213,13 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 
 	log.Infof("received mount request for '%s' as '%s'", prefixedName, req.ID)
 
-	vol, _, err := hd.client.Volume.GetByName(context.Background(), prefixedName)
+	vol, _, err := hd.client.Volume().GetByName(context.Background(), prefixedName)
 	if err != nil || vol == nil {
 		return nil, errors.Wrapf(err, "could not get volume '%s'", prefixedName)
 	}
 
 	if vol.Server != nil && vol.Server.ID != 0 {
-		volSrv, _, err := hd.client.Server.GetByID(context.Background(), vol.Server.ID)
+		volSrv, _, err := hd.client.Server().GetByID(context.Background(), vol.Server.ID)
 		if err != nil {
 			return nil, errors.Wrapf(err, "could not fetch server details for volume '%s'", prefixedName)
 		}
@@ -234,7 +234,7 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 	if vol.Server == nil || vol.Server.Name != srv.Name {
 		if vol.Server != nil && vol.Server.Name != "" {
 			log.Infof("detaching volume '%s' from '%s'", prefixedName, vol.Server.Name)
-			act, _, err := hd.client.Volume.Detach(context.Background(), vol)
+			act, _, err := hd.client.Volume().Detach(context.Background(), vol)
 			if err != nil {
 				return nil, errors.Wrapf(err, "could not detach volume '%s' from '%s'", vol.Name, vol.Server.Name)
 			}
@@ -243,7 +243,7 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 			}
 		}
 		log.Infof("attaching volume '%s' to '%s'", prefixedName, srv.Name)
-		act, _, err := hd.client.Volume.Attach(context.Background(), vol, srv)
+		act, _, err := hd.client.Volume().Attach(context.Background(), vol, srv)
 		if err != nil {
 			return nil, errors.Wrapf(err, "could not attach volume '%s' to '%s'", vol.Name, srv.Name)
 		}
@@ -285,7 +285,7 @@ func (hd *hetznerDriver) Unmount(req *volume.UnmountRequest) error {
 
 	log.Infof("received unmount request for '%s' as '%s'", prefixedName, req.ID)
 
-	vol, _, err := hd.client.Volume.GetByName(context.Background(), prefixedName)
+	vol, _, err := hd.client.Volume().GetByName(context.Background(), prefixedName)
 	if err != nil || vol == nil {
 		return errors.Wrapf(err, "could not get volume '%s'", prefixedName)
 	}
@@ -303,7 +303,7 @@ func (hd *hetznerDriver) Unmount(req *volume.UnmountRequest) error {
 	}
 
 	log.Infof("detaching volume '%s'", prefixedName)
-	act, _, err := hd.client.Volume.Detach(context.Background(), vol)
+	act, _, err := hd.client.Volume().Detach(context.Background(), vol)
 	if err != nil {
 		return errors.Wrapf(err, "could not detach volume '%s'", vol.Name)
 	}
@@ -320,7 +320,7 @@ func (hd *hetznerDriver) getServerForLocalhost() (*hcloud.Server, error) {
 		return nil, errors.Wrap(err, "could not get local hostname")
 	}
 
-	srv, _, err := hd.client.Server.GetByName(context.Background(), hostname)
+	srv, _, err := hd.client.Server().GetByName(context.Background(), hostname)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not get cloud server '%s'", hostname)
 	}
@@ -329,7 +329,7 @@ func (hd *hetznerDriver) getServerForLocalhost() (*hcloud.Server, error) {
 }
 
 func (hd *hetznerDriver) waitForAction(act *hcloud.Action) error {
-	_, errs := hd.client.Action.WatchProgress(context.Background(), act)
+	_, errs := hd.client.Action().WatchProgress(context.Background(), act)
 	return <-errs
 }
 
