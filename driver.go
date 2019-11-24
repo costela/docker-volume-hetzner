@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/pkg/mount"
+	"github.com/hashicorp/go-multierror"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/docker/go-plugins-helpers/volume"
@@ -259,12 +260,19 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 	}
 
 	log.Infof("mounting '%s' on '%s'", prefixedName, mountpoint)
+
 	// copy busybox' approach and just try everything we expect might work
+	var merr error
+	mounted := false
 	for _, fstype := range supportedFileystemTypes {
 		if err := mount.Mount(vol.LinuxDevice, mountpoint, fstype, ""); err == nil {
+			mounted = true
 			break
 		}
-		return nil, errors.Errorf("could not mount '%s' as any of %s", vol.LinuxDevice, supportedFileystemTypes)
+		merr = multierror.Append(merr, err)
+	}
+	if !mounted {
+		return nil, errors.Wrapf(merr, "could not mount '%s' as any of %s", vol.LinuxDevice, supportedFileystemTypes)
 	}
 
 	log.Infof("successfully mounted '%s' on '%s'", prefixedName, mountpoint)
