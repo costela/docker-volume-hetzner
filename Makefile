@@ -22,7 +22,10 @@ create: rootfs
 enable: create
 	docker plugin enable ${PLUGIN_NAME}:${PLUGIN_TAG}
 
-push:  create
+push: create
 	docker plugin push ${PLUGIN_NAME}:${PLUGIN_TAG}
+
+push_latest: create
+	docker plugin push ${PLUGIN_NAME}:latest
 
 .PHONY: clean rootfs create enable push
