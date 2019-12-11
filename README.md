@@ -55,7 +55,7 @@ The following options can be passed to the plugin via `docker plugin set` (all n
 - **`prefix`** (optional): prefix to use when naming created volumes (default: `docker`)
 - **`loglevel`** (optional): the amount of information that will be output by the plugin. Accepts any value supported by [logrus](github.com/sirupsen/logrus) (default: `warn`)
 
-Additionally, `size` and `fstype` can also be passed as options to the driver:
+Additionally, `size` and `fstype` can also be passed as options to the driver via `driver_opts`:
 ```yaml
 volumes:
   somevolume:
@@ -64,6 +64,8 @@ volumes:
       size: '42'
       fstype: xfs
 ```
+
+:warning: passing any option besides `size` and `fstype` to the volume definition will have no effect beyond a warning in the logs. Use `docker plugin set` instead.
 
 ## Limitations
 
