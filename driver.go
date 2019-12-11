@@ -10,7 +10,7 @@ import (
 
 	"github.com/docker/docker/pkg/mount"
 	"github.com/hashicorp/go-multierror"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
 	"github.com/docker/go-plugins-helpers/volume"
 	"github.com/hetznercloud/hcloud-go/hcloud"
@@ -40,7 +40,7 @@ func (hd *hetznerDriver) Capabilities() *volume.CapabilitiesResponse {
 func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 	prefixedName := prefixName(req.Name)
 
-	log.Infof("starting volume creation for '%s'", prefixedName)
+	logrus.Infof("starting volume creation for '%s'", prefixedName)
 
 	size, err := strconv.Atoi(getOption("size", req.Options))
 	if err != nil {
@@ -67,7 +67,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 		return errors.Wrapf(err, "could not create volume '%s'", prefixedName)
 	}
 
-	log.Infof("volume '%s' (%dGB) created on '%s'; attaching", prefixedName, size, srv.Name)
+	logrus.Infof("volume '%s' (%dGB) created on '%s'; attaching", prefixedName, size, srv.Name)
 
 	act, _, err := hd.client.Volume().Attach(context.Background(), resp.Volume, srv)
 	if err != nil {
@@ -77,12 +77,12 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 		return errors.Wrapf(err, "could not attach volume '%s' to '%s'", prefixedName, srv.Name)
 	}
 
-	log.Infof("volume '%s' attached to '%s'", prefixedName, srv.Name)
+	logrus.Infof("volume '%s' attached to '%s'", prefixedName, srv.Name)
 
 	// be optimistic for now and ignore errors here
 	_, _, _ = hd.client.Volume().ChangeProtection(context.Background(), resp.Volume, hcloud.VolumeChangeProtectionOpts{Delete: &trueVar})
 
-	log.Infof("formatting '%s' as '%s'", prefixedName, getOption("fstype", req.Options))
+	logrus.Infof("formatting '%s' as '%s'", prefixedName, getOption("fstype", req.Options))
 	err = mkfs(resp.Volume.LinuxDevice, getOption("fstype", req.Options))
 	if err != nil {
 		return errors.Wrapf(err, "could not mkfs on '%s'", resp.Volume.LinuxDevice)
@@ -92,7 +92,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 }
 
 func (hd *hetznerDriver) List() (*volume.ListResponse, error) {
-	log.Infof("got list request")
+	logrus.Infof("got list request")
 
 	vols, err := hd.client.Volume().All(context.Background())
 	if err != nil {
@@ -122,7 +122,7 @@ func (hd *hetznerDriver) List() (*volume.ListResponse, error) {
 func (hd *hetznerDriver) Get(req *volume.GetRequest) (*volume.GetResponse, error) {
 	prefixedName := prefixName(req.Name)
 
-	log.Infof("fetching information for volume '%s'", prefixedName)
+	logrus.Infof("fetching information for volume '%s'", prefixedName)
 
 	vol, _, err := hd.client.Volume().GetByName(context.Background(), prefixedName)
 	if err != nil || vol == nil {
@@ -150,7 +150,7 @@ func (hd *hetznerDriver) Get(req *volume.GetRequest) (*volume.GetResponse, error
 		},
 	}
 
-	log.Infof("returning info on '%s': %#v", prefixedName, resp.Volume)
+	logrus.Infof("returning info on '%s': %#v", prefixedName, resp.Volume)
 
 	return &resp, nil
 }
@@ -158,14 +158,14 @@ func (hd *hetznerDriver) Get(req *volume.GetRequest) (*volume.GetResponse, error
 func (hd *hetznerDriver) Remove(req *volume.RemoveRequest) error {
 	prefixedName := prefixName(req.Name)
 
-	log.Infof("starting volume removal for '%s'", prefixedName)
+	logrus.Infof("starting volume removal for '%s'", prefixedName)
 
 	vol, _, err := hd.client.Volume().GetByName(context.Background(), prefixedName)
 	if err != nil || vol == nil {
 		return errors.Wrapf(err, "could not get cloud volume '%s'", prefixedName)
 	}
 
-	log.Infof("disabling protection for '%s'", prefixedName)
+	logrus.Infof("disabling protection for '%s'", prefixedName)
 	act, _, err := hd.client.Volume().ChangeProtection(context.Background(), vol, hcloud.VolumeChangeProtectionOpts{Delete: &falseVar})
 	if err != nil {
 		return errors.Wrapf(err, "could not unprotect volume '%s'", prefixedName)
@@ -175,7 +175,7 @@ func (hd *hetznerDriver) Remove(req *volume.RemoveRequest) error {
 	}
 
 	if vol.Server != nil && vol.Server.ID != 0 {
-		log.Infof("detaching volume '%s' (attached to %d)", prefixedName, vol.Server.ID)
+		logrus.Infof("detaching volume '%s' (attached to %d)", prefixedName, vol.Server.ID)
 		act, _, err = hd.client.Volume().Detach(context.Background(), vol)
 		if err != nil {
 			return errors.Wrapf(err, "could not detach volume '%s'", prefixedName)
@@ -190,7 +190,7 @@ func (hd *hetznerDriver) Remove(req *volume.RemoveRequest) error {
 		return errors.Wrapf(err, "could not delete volume '%s'", prefixedName)
 	}
 
-	log.Infof("volume '%s' removed successfully", prefixedName)
+	logrus.Infof("volume '%s' removed successfully", prefixedName)
 
 	return nil
 }
@@ -198,7 +198,7 @@ func (hd *hetznerDriver) Remove(req *volume.RemoveRequest) error {
 func (hd *hetznerDriver) Path(req *volume.PathRequest) (*volume.PathResponse, error) {
 	prefixedName := prefixName(req.Name)
 
-	log.Infof("got path request for volume '%s'", prefixedName)
+	logrus.Infof("got path request for volume '%s'", prefixedName)
 
 	resp, err := hd.Get(&volume.GetRequest{Name: req.Name})
 	if err != nil {
@@ -211,7 +211,7 @@ func (hd *hetznerDriver) Path(req *volume.PathRequest) (*volume.PathResponse, er
 func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse, error) {
 	prefixedName := prefixName(req.Name)
 
-	log.Infof("received mount request for '%s' as '%s'", prefixedName, req.ID)
+	logrus.Infof("received mount request for '%s' as '%s'", prefixedName, req.ID)
 
 	vol, _, err := hd.client.Volume().GetByName(context.Background(), prefixedName)
 	if err != nil || vol == nil {
@@ -233,7 +233,7 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 
 	if vol.Server == nil || vol.Server.Name != srv.Name {
 		if vol.Server != nil && vol.Server.Name != "" {
-			log.Infof("detaching volume '%s' from '%s'", prefixedName, vol.Server.Name)
+			logrus.Infof("detaching volume '%s' from '%s'", prefixedName, vol.Server.Name)
 			act, _, err := hd.client.Volume().Detach(context.Background(), vol)
 			if err != nil {
 				return nil, errors.Wrapf(err, "could not detach volume '%s' from '%s'", vol.Name, vol.Server.Name)
@@ -242,7 +242,7 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 				return nil, errors.Wrapf(err, "could not detach volume '%s' from '%s'", vol.Name, vol.Server.Name)
 			}
 		}
-		log.Infof("attaching volume '%s' to '%s'", prefixedName, srv.Name)
+		logrus.Infof("attaching volume '%s' to '%s'", prefixedName, srv.Name)
 		act, _, err := hd.client.Volume().Attach(context.Background(), vol, srv)
 		if err != nil {
 			return nil, errors.Wrapf(err, "could not attach volume '%s' to '%s'", vol.Name, srv.Name)
@@ -254,12 +254,12 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 
 	mountpoint := fmt.Sprintf("%s/%s", propagatedMountPath, req.ID)
 
-	log.Infof("creating mountpoint %s", mountpoint)
+	logrus.Infof("creating mountpoint %s", mountpoint)
 	if err := os.MkdirAll(mountpoint, 0755); err != nil {
 		return nil, errors.Wrapf(err, "could not create mountpoint %s", mountpoint)
 	}
 
-	log.Infof("mounting '%s' on '%s'", prefixedName, mountpoint)
+	logrus.Infof("mounting '%s' on '%s'", prefixedName, mountpoint)
 
 	// copy busybox' approach and just try everything we expect might work
 	var merr error
@@ -275,7 +275,7 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 		return nil, errors.Wrapf(merr, "could not mount '%s' as any of %s", vol.LinuxDevice, supportedFileystemTypes)
 	}
 
-	log.Infof("successfully mounted '%s' on '%s'", prefixedName, mountpoint)
+	logrus.Infof("successfully mounted '%s' on '%s'", prefixedName, mountpoint)
 
 	return &volume.MountResponse{Mountpoint: mountpoint}, nil
 }
@@ -283,7 +283,7 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 func (hd *hetznerDriver) Unmount(req *volume.UnmountRequest) error {
 	prefixedName := prefixName(req.Name)
 
-	log.Infof("received unmount request for '%s' as '%s'", prefixedName, req.ID)
+	logrus.Infof("received unmount request for '%s' as '%s'", prefixedName, req.ID)
 
 	vol, _, err := hd.client.Volume().GetByName(context.Background(), prefixedName)
 	if err != nil || vol == nil {
@@ -296,13 +296,13 @@ func (hd *hetznerDriver) Unmount(req *volume.UnmountRequest) error {
 		return errors.Wrapf(err, "could not unmount '%s'", mountpoint)
 	}
 
-	log.Infof("unmounted '%s'", mountpoint)
+	logrus.Infof("unmounted '%s'", mountpoint)
 
 	if err := os.Remove(mountpoint); err != nil {
 		return errors.Wrapf(err, "could not remove mountpoint %s", mountpoint)
 	}
 
-	log.Infof("detaching volume '%s'", prefixedName)
+	logrus.Infof("detaching volume '%s'", prefixedName)
 	act, _, err := hd.client.Volume().Detach(context.Background(), vol)
 	if err != nil {
 		return errors.Wrapf(err, "could not detach volume '%s'", vol.Name)

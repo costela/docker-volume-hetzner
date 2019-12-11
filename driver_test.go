@@ -328,30 +328,3 @@ func Test_hetznerDriver_Create(t *testing.T) {
 // 		})
 // 	}
 // }
-
-// func Test_hetznerDriver_waitForAction(t *testing.T) {
-// 	type fields struct {
-// 		client *hcloud.Client
-// 	}
-// 	type args struct {
-// 		act *hcloud.Action
-// 	}
-// 	tests := []struct {
-// 		name    string
-// 		fields  fields
-// 		args    args
-// 		wantErr bool
-// 	}{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			hd := &hetznerDriver{
-// 				client: tt.fields.client,
-// 			}
-// 			if err := hd.waitForAction(tt.args.act); (err != nil) != tt.wantErr {
-// 				t.Errorf("hetznerDriver.waitForAction() error = %v, wantErr %v", err, tt.wantErr)
-// 			}
-// 		})
-// 	}
-// }

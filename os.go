@@ -6,7 +6,7 @@ import (
 	"os/exec"
 
 	"github.com/docker/docker/pkg/mount"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var supportedFileystemTypes = [...]string{"ext4", "xfs", "ext3", "ext2"}
@@ -29,7 +29,7 @@ func mkfs(dev, fstype string) error {
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		log.Errorf("mkfs stderr: %s", stderr.String())
+		logrus.Errorf("mkfs stderr: %s", stderr.String())
 		return err
 	}
 	return nil
