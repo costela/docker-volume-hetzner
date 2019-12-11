@@ -322,6 +322,10 @@ func (hd *hetznerDriver) getServerForLocalhost() (*hcloud.Server, error) {
 		return nil, errors.Wrap(err, "could not get local hostname")
 	}
 
+	if strings.Contains(hostname, ".") {
+		logrus.Warnf("hostname contains dot ('%s'); make sure hostname != FQDN and matches the hcloud server name", hostname)
+	}
+
 	srv, _, err := hd.client.Server().GetByName(context.Background(), hostname)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not get cloud server '%s'", hostname)
