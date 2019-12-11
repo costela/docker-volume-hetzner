@@ -38,6 +38,8 @@ func (hd *hetznerDriver) Capabilities() *volume.CapabilitiesResponse {
 }
 
 func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
+	validateOptions(req.Name, req.Options)
+
 	prefixedName := prefixName(req.Name)
 
 	logrus.Infof("starting volume creation for '%s'", prefixedName)
@@ -331,6 +333,16 @@ func (hd *hetznerDriver) getServerForLocalhost() (*hcloud.Server, error) {
 func (hd *hetznerDriver) waitForAction(act *hcloud.Action) error {
 	_, errs := hd.client.Action().WatchProgress(context.Background(), act)
 	return <-errs
+}
+
+func validateOptions(volume string, opts map[string]string) {
+	for k := range opts {
+		switch k {
+		case "fstype", "size": // OK, noop
+		default:
+			logrus.Warnf("unsupported driver_opt '%s' for volume %s", k, volume)
+		}
+	}
 }
 
 func getOption(k string, opts map[string]string) string {
