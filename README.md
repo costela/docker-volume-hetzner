@@ -12,12 +12,12 @@ This plugin manages docker volumes using Hetzner Cloud's volumes.
 To install the plugin, run the following command:
 ```
 $ docker plugin install --alias hetzner costela/docker-volume-hetzner
+$ docker plugin enable hetzner
 ```
 
-When using docker swarm, this should be done on all nodes in the cluster.
+When using Docker Swarm, this should be done on all nodes in the cluster.
 
-**Important**: the plugin expects the docker node's `hostname` to match with the name of the server created
-on Hetzner Cloud. This should usually be the case, unless explicitly changed.
+**Important**: the plugin expects the Docker node's `hostname` to match with the name of the server created on Hetzner Cloud. This should usually be the case, unless explicitly changed.
 
 #### Plugin privileges
 
@@ -30,20 +30,33 @@ During installation, you will be prompted to accept the plugins's privilege requ
 
 ## Usage
 
-The plugin is used by setting the `driver` option on the docker `volume` definition (assuming the alias passed during
-installation above):
+First, create an API key from the Hetzner Cloud console and save it temporarily.
+
+Install the plugin as described above. Then, set the API key in the plugin options, where `<apikey>` is the key you just created:
+
+```
+$ docker plugin set hetzner apikey=<apikey>
+```
+
+The plugin is then ready to be used, e.g. in a Docker Compose file, by setting the `driver` option on the docker `volume` definition (assuming the alias `hetzner` passed during installation above).
+
+For example, when using the following Docker Compose volume definition in a project called `foo`:
+
 ```yaml
 volumes:
   somevolume:
     driver: hetzner
 ```
 
-This will: 
-1. If the volume is new in the cluster:
-    1. create the Hetzner Cloud (HC) volume upon creation of the docker volume
-    2. attach the created HC volume to the node requesting the creation (when using docker swarm, this will be the manager node being used)
-    3. format the HC volume (using `fstype` option; see below)
-2. mount the volume on the node running its parent service, if any
+This will initialize a Hetzner volume named `docker-foo_somevolume` (see the `prefix` configuration below).
+
+If the volume `docker-foo_somevolume` does not exist in the Hetzner Cloud project, the plugin will do the following:
+
+1. Create the Hetzner Cloud (HC) volume
+2. Attach the created HC volume to the node requesting the creation (when using docker swarm, this will be the manager node being used)
+3. Format the HC volume (using `fstype` option; see below)
+
+The plugin will then mount the volume on the node running its parent service, if any.
 
 ## Configuration
 
@@ -52,10 +65,11 @@ The following options can be passed to the plugin via `docker plugin set` (all n
 - **`apikey`** (**required**): authentication token to use when accessing the Hetzner Cloud API
 - **`size`** (optional): size of the volume in GB (default: `10`)
 - **`fstype`** (optional): filesystem type to be created on new volumes. Currently supported values are `ext{2,3,4}` and `xfs` (default: `ext4`)
-- **`prefix`** (optional): prefix to use when naming created volumes (default: `docker`)
+- **`prefix`** (optional): prefix to use when naming created volumes; it will be separated from the created volume name with a hyphen (default: `docker`)
 - **`loglevel`** (optional): the amount of information that will be output by the plugin. Accepts any value supported by [logrus](github.com/sirupsen/logrus) (default: `warn`)
 
 Additionally, `size` and `fstype` can also be passed as options to the driver via `driver_opts`:
+
 ```yaml
 volumes:
   somevolume:
@@ -65,7 +79,7 @@ volumes:
       fstype: xfs
 ```
 
-:warning: passing any option besides `size` and `fstype` to the volume definition will have no effect beyond a warning in the logs. Use `docker plugin set` instead.
+:warning: Passing any option besides `size` and `fstype` to the volume definition will have no effect beyond a warning in the logs. Use `docker plugin set` instead.
 
 ## Limitations
 
