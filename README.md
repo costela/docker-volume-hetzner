@@ -53,7 +53,7 @@ The following options can be passed to the plugin via `docker plugin set` (all n
 - **`size`** (optional): size of the volume in GB (default: `10`)
 - **`fstype`** (optional): filesystem type to be created on new volumes. Currently supported values are `ext{2,3,4}` and `xfs` (default: `ext4`)
 - **`prefix`** (optional): prefix to use when naming created volumes (default: `docker`)
-- **`loglevel`** (optional): the amount of information that will be output by the plugin. Accepts any value supported by [logrus](https://github.com/sirupsen/logrus), that is: `panic`, `fatal`, `error`, `warning`, `info`, `debug`, `trace` (default: `warn`)
+- **`loglevel`** (optional): the amount of information that will be output by the plugin. Accepts any value supported by [logrus](https://github.com/sirupsen/logrus) (i.e.: `fatal`, `error`, `warn`, `info` and `debug`; default: `warn`)
 
 Additionally, `size` and `fstype` can also be passed as options to the driver:
 ```yaml
