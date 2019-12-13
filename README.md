@@ -38,9 +38,9 @@ Install the plugin as described above. Then, set the API key in the plugin optio
 $ docker plugin set hetzner apikey=<apikey>
 ```
 
-The plugin is then ready to be used, e.g. in a Docker Compose file, by setting the `driver` option on the docker `volume` definition (assuming the alias `hetzner` passed during installation above).
+The plugin is then ready to be used, e.g. in a `docker-compose` file, by setting the `driver` option on the docker `volume` definition (assuming the alias `hetzner` passed during installation above).
 
-For example, when using the following Docker Compose volume definition in a project called `foo`:
+For example, when using the following `docker-compose` volume definition in a project called `foo`:
 
 ```yaml
 volumes:
@@ -65,7 +65,7 @@ The following options can be passed to the plugin via `docker plugin set` (all n
 - **`apikey`** (**required**): authentication token to use when accessing the Hetzner Cloud API
 - **`size`** (optional): size of the volume in GB (default: `10`)
 - **`fstype`** (optional): filesystem type to be created on new volumes. Currently supported values are `ext{2,3,4}` and `xfs` (default: `ext4`)
-- **`prefix`** (optional): prefix to use when naming created volumes; it will be separated from the created volume name with a hyphen (default: `docker`)
+- **`prefix`** (optional): prefix to use when naming created volumes; the final name on the HC side will be of the form `prefix-name`, where `name` is the volume name assigned by `docker` (default: `docker`)
 - **`loglevel`** (optional): the amount of information that will be output by the plugin. Accepts any value supported by [logrus](github.com/sirupsen/logrus) (default: `warn`)
 
 Additionally, `size` and `fstype` can also be passed as options to the driver via `driver_opts`:
