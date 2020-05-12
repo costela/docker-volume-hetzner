@@ -304,7 +304,17 @@ func (hd *hetznerDriver) Unmount(req *volume.UnmountRequest) error {
 		return errors.Wrapf(err, "could not remove mountpoint %s", mountpoint)
 	}
 
+	srv, err := hd.getServerForLocalhost()
+	if err != nil {
+		return nil
+	}
+
+	if vol.Server == nil || vol.Server.Name != srv.Name {
+		return nil
+	}
+
 	logrus.Infof("detaching volume '%s'", prefixedName)
+
 	act, _, err := hd.client.Volume().Detach(context.Background(), vol)
 	if err != nil {
 		return errors.Wrapf(err, "could not detach volume '%s'", vol.Name)
