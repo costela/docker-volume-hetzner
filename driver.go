@@ -60,6 +60,10 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 		Location: srv.Datacenter.Location, // attach explicitly to be able to wait
 		Labels:   map[string]string{"docker-volume-hetzner": ""},
 	}
+	switch f := getOption("fstype", req.Options); f {
+	case "xfs", "ext4":
+		opts.Format = hcloud.String(f)
+	}
 
 	resp, _, err := hd.client.Volume().Create(context.Background(), opts)
 	if err != nil {
@@ -84,10 +88,12 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 	// be optimistic for now and ignore errors here
 	_, _, _ = hd.client.Volume().ChangeProtection(context.Background(), resp.Volume, hcloud.VolumeChangeProtectionOpts{Delete: &trueVar})
 
-	logrus.Infof("formatting '%s' as '%s'", prefixedName, getOption("fstype", req.Options))
-	err = mkfs(resp.Volume.LinuxDevice, getOption("fstype", req.Options))
-	if err != nil {
-		return errors.Wrapf(err, "could not mkfs on '%s'", resp.Volume.LinuxDevice)
+	if opts.Format == nil {
+		logrus.Infof("formatting '%s' as '%s'", prefixedName, getOption("fstype", req.Options))
+		err = mkfs(resp.Volume.LinuxDevice, getOption("fstype", req.Options))
+		if err != nil {
+			return errors.Wrapf(err, "could not mkfs on '%s'", resp.Volume.LinuxDevice)
+		}
 	}
 
 	return nil
