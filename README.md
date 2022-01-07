@@ -10,9 +10,8 @@ This plugin manages docker volumes using Hetzner Cloud's volumes.
 ## Installation
 
 To install the plugin, run the following command:
-```
+```shell
 $ docker plugin install --alias hetzner costela/docker-volume-hetzner
-$ docker plugin enable hetzner
 ```
 
 When using Docker Swarm, this should be done on all nodes in the cluster.
@@ -34,9 +33,13 @@ First, create an API key from the Hetzner Cloud console and save it temporarily.
 
 Install the plugin as described above. Then, set the API key in the plugin options, where `<apikey>` is the key you just created:
 
-```
+```shell
+$ docker plugin disable hetzner
 $ docker plugin set hetzner apikey=<apikey>
+$ docker plugin enable hetzner
 ```
+
+Again, when using Docker Swarm, this should be done on all nodes in the cluster.
 
 The plugin is then ready to be used, e.g. in a `docker-compose` file, by setting the `driver` option on the docker `volume` definition (assuming the alias `hetzner` passed during installation above).
 
