@@ -107,15 +107,19 @@ func (hd *hetznerDriver) List() (*volume.ListResponse, error) {
 	}
 
 	resp := volume.ListResponse{
-		Volumes: make([]*volume.Volume, len(vols)),
+		Volumes: make([]*volume.Volume, 0, len(vols)),
 	}
-	for i, vol := range vols {
-		resp.Volumes[i] = &volume.Volume{
+	for _, vol := range vols {
+		if !nameHasPrefix(vol.Name) {
+			continue
+		}
+		v := &volume.Volume{
 			Name: unprefixedName(vol.Name),
 		}
 		if mountpoint, ok := mounts[vol.LinuxDevice]; ok {
-			resp.Volumes[i].Mountpoint = mountpoint
+			v.Mountpoint = mountpoint
 		}
+		resp.Volumes = append(resp.Volumes, v)
 	}
 
 	return &resp, nil
@@ -376,4 +380,8 @@ func prefixName(name string) string {
 
 func unprefixedName(name string) string {
 	return strings.TrimPrefix(name, fmt.Sprintf("%s-", os.Getenv("prefix")))
+}
+
+func nameHasPrefix(name string) bool {
+	return strings.HasPrefix(name, fmt.Sprintf("%s-", os.Getenv("prefix")))
 }
