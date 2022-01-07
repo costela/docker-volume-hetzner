@@ -81,8 +81,10 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 
 	logrus.Infof("volume '%s' attached to '%s'", prefixedName, srv.Name)
 
-	// be optimistic for now and ignore errors here
-	_, _, _ = hd.client.Volume().ChangeProtection(context.Background(), resp.Volume, hcloud.VolumeChangeProtectionOpts{Delete: &trueVar})
+	if useProtection() {
+		// be optimistic for now and ignore errors here
+		_, _, _ = hd.client.Volume().ChangeProtection(context.Background(), resp.Volume, hcloud.VolumeChangeProtectionOpts{Delete: &trueVar})
+	}
 
 	logrus.Infof("formatting '%s' as '%s'", prefixedName, getOption("fstype", req.Options))
 	err = mkfs(resp.Volume.LinuxDevice, getOption("fstype", req.Options))
@@ -171,18 +173,20 @@ func (hd *hetznerDriver) Remove(req *volume.RemoveRequest) error {
 		return errors.Wrapf(err, "could not get cloud volume '%s'", prefixedName)
 	}
 
-	logrus.Infof("disabling protection for '%s'", prefixedName)
-	act, _, err := hd.client.Volume().ChangeProtection(context.Background(), vol, hcloud.VolumeChangeProtectionOpts{Delete: &falseVar})
-	if err != nil {
-		return errors.Wrapf(err, "could not unprotect volume '%s'", prefixedName)
-	}
-	if err := hd.waitForAction(act); err != nil {
-		return errors.Wrapf(err, "could not unprotect volume '%s'", prefixedName)
+	if useProtection() {
+		logrus.Infof("disabling protection for '%s'", prefixedName)
+		act, _, err := hd.client.Volume().ChangeProtection(context.Background(), vol, hcloud.VolumeChangeProtectionOpts{Delete: &falseVar})
+		if err != nil {
+			return errors.Wrapf(err, "could not unprotect volume '%s'", prefixedName)
+		}
+		if err := hd.waitForAction(act); err != nil {
+			return errors.Wrapf(err, "could not unprotect volume '%s'", prefixedName)
+		}
 	}
 
 	if vol.Server != nil && vol.Server.ID != 0 {
 		logrus.Infof("detaching volume '%s' (attached to %d)", prefixedName, vol.Server.ID)
-		act, _, err = hd.client.Volume().Detach(context.Background(), vol)
+		act, _, err := hd.client.Volume().Detach(context.Background(), vol)
 		if err != nil {
 			return errors.Wrapf(err, "could not detach volume '%s'", prefixedName)
 		}
@@ -384,4 +388,8 @@ func unprefixedName(name string) string {
 
 func nameHasPrefix(name string) bool {
 	return strings.HasPrefix(name, fmt.Sprintf("%s-", os.Getenv("prefix")))
+}
+
+func useProtection() bool {
+	return os.Getenv("use_protection") == "true"
 }

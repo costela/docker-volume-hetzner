@@ -30,6 +30,12 @@
       "value": "ext4"
     },
     {
+      "name": "use_protection",
+      "description": "whether to enable/disable protection on volumes managed by this plugin",
+      "settable": ["value"],
+      "value": "true"
+    },
+    {
       "name": "loglevel",
       "description": "log level passed to logrus",
       "settable": ["value"],
