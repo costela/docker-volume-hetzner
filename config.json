@@ -31,7 +31,7 @@
     },
     {
       "name": "use_protection",
-      "description": "whether to enable/disable protection on volumes managed by this plugin",
+      "description": "whether to enable/disable delete protection on volumes managed by this plugin",
       "settable": ["value"],
       "value": "true"
     },
