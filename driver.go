@@ -387,7 +387,7 @@ func (hd *hetznerDriver) waitForAction(act *hcloud.Action) error {
 func validateOptions(volume string, opts map[string]string) {
 	for k := range opts {
 		switch k {
-		case "fstype", "size": // OK, noop
+		case "fstype", "size", "uid", "gid": // OK, noop
 		default:
 			logrus.Warnf("unsupported driver_opt '%s' for volume %s", k, volume)
 		}
