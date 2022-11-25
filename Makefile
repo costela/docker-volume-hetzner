@@ -3,6 +3,10 @@ PLUGIN_TAG ?= $(shell git describe --tags --exact-match 2> /dev/null || echo dev
 
 all: create
 
+# requires superuser for tmpfs mounts in tests
+test:
+	sudo go test
+
 clean:
 	@rm -rf ./plugin
 	@docker container rm -vf tmp_plugin_build || true

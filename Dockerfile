@@ -13,7 +13,6 @@ RUN go mod download
 COPY . /plugin
 RUN go build -v
 
-
 FROM alpine
 
 RUN apk add --update ca-certificates e2fsprogs xfsprogs
