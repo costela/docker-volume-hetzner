@@ -30,6 +30,18 @@
       "value": "ext4"
     },
     {
+      "name": "uid",
+      "description": "uid to be assigned on new volumes",
+      "settable": ["value"],
+      "value": "0"
+    },
+    {
+      "name": "gid",
+      "description": "gid to be assigned on new volumes",
+      "settable": ["value"],
+      "value": "0"
+    },
+    {
       "name": "use_protection",
       "description": "whether to enable/disable delete protection on volumes managed by this plugin",
       "settable": ["value"],
