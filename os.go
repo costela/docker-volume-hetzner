@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 
 	"github.com/docker/docker/pkg/mount"
@@ -33,4 +34,80 @@ func mkfs(dev, fstype string) error {
 		return err
 	}
 	return nil
+}
+
+func umount(mntpoint string) error {
+	tmpDir := os.TempDir()
+	var stderr bytes.Buffer
+
+	cmd := exec.Command(
+		"/bin/umount",
+		tmpDir,
+	)
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		logrus.Errorf("umount stderr: %s", stderr.String())
+		return err
+	}
+	return nil
+}
+
+func tempMount(dev, fstype string, mountOptions ...string) error {
+	tmpDir := os.TempDir()
+	var stderr bytes.Buffer
+
+	mountArgs := []string{
+		"-t",
+		fstype,
+	}
+	mountArgs = append(mountArgs, mountOptions...)
+	mountArgs = append(mountArgs,
+		dev,
+		tmpDir,
+	)
+	cmd := exec.Command(
+		"/bin/mount",
+		mountArgs...,
+	)
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		logrus.Errorf("mount stderr: %s", stderr.String())
+		return err
+	}
+	return nil
+}
+
+func chown(dir string, uidgid string) error {
+	var stderr bytes.Buffer
+	cmd := exec.Command(
+		"/bin/chown",
+		"-R",
+		uidgid,
+		dir,
+	)
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		logrus.Errorf("chown stderr: %s", stderr.String())
+		return err
+	}
+	return nil
+}
+
+func setPermissions(dev, fstype string, uidgid string, mountOptions ...string) error {
+	tmpDir := os.TempDir()
+
+	if err := tempMount(dev, fstype, mountOptions...); err != nil {
+		// nothing to clean up yet
+		return err
+	}
+
+	if err := chown(tmpDir, uidgid); err != nil {
+		// clean up
+		if umountErr := umount(tmpDir); umountErr != nil {
+			logrus.Errorf("failed unmounting while cleaning up after error in chown")
+		}
+		return err
+	}
+
+	return umount(tmpDir)
 }
