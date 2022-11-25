@@ -98,6 +98,27 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 		}
 	}
 
+	uid := getOption("uid", req.Options)
+	gid := getOption("gid", req.Options)
+	if uid != "0" || gid != "" {
+		// string to int
+		uintParsed, err := strconv.Atoi(uid)
+		if err != nil {
+			logrus.Warnf("failed to parse uid option value as uint32: %s", uid)
+			uintParsed = 0
+		}
+		gidParsed, err := strconv.Atoi(gid)
+		if err != nil {
+			logrus.Warnf("failed to parse gid option value as uint32: %s", gid)
+			gidParsed = 0
+		}
+
+		err = setPermissions(resp.Volume.LinuxDevice, getOption("fstype", req.Options), uint32(uintParsed), uint32(gidParsed))
+		if err != nil {
+			return errors.Wrapf(err, "could not chown '%s' to '%s:%s'", resp.Volume.LinuxDevice, uid, gid)
+		}
+	}
+
 	return nil
 }
 

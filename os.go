@@ -77,7 +77,8 @@ func tempMount(dev, fstype string, mountOptions ...string) error {
 	return nil
 }
 
-func chown(dir string, uidgid string) error {
+func chown(dir string, uid uint32, gid uint32) error {
+	uidgid := fmt.Sprintf("%d:%d", uid, gid)
 	var stderr bytes.Buffer
 	cmd := exec.Command(
 		"/bin/chown",
@@ -93,7 +94,7 @@ func chown(dir string, uidgid string) error {
 	return nil
 }
 
-func setPermissions(dev, fstype string, uidgid string, mountOptions ...string) error {
+func setPermissions(dev, fstype string, uid uint32, gid uint32, mountOptions ...string) error {
 	tmpDir := os.TempDir()
 
 	if err := tempMount(dev, fstype, mountOptions...); err != nil {
@@ -101,7 +102,7 @@ func setPermissions(dev, fstype string, uidgid string, mountOptions ...string) e
 		return err
 	}
 
-	if err := chown(tmpDir, uidgid); err != nil {
+	if err := chown(tmpDir, uid, gid); err != nil {
 		// clean up
 		if umountErr := umount(tmpDir); umountErr != nil {
 			logrus.Errorf("failed unmounting while cleaning up after error in chown")

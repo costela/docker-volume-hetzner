@@ -10,7 +10,7 @@ import (
 
 func Test_setPermissions(t *testing.T) {
 	t.Run("test", func(t *testing.T) {
-		if got := setPermissions("none", "tmpfs", "33:33", "-o", "size=1%"); got != nil {
+		if got := setPermissions("none", "tmpfs", 33, 33, "-o", "size=1%"); got != nil {
 			t.Errorf("setPermissions() = %v, want %v", got, nil)
 		}
 	})
@@ -23,7 +23,7 @@ func Test_chown(t *testing.T) {
 		t.Errorf("failed tempMount")
 	}
 
-	if err := chown(tmpDir, "33:33"); err != nil {
+	if err := chown(tmpDir, 33, 33); err != nil {
 		// clean up
 		if umountErr := umount(tmpDir); umountErr != nil {
 			logrus.Errorf("failed unmounting while cleaning up after error in chown")
