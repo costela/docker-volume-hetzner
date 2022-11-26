@@ -62,7 +62,7 @@
   },
   "linux": {
     "allowAllDevices": true,
-    "capabilities": ["CAP_SYS_ADMIN"]
+    "capabilities": ["CAP_SYS_ADMIN", "CAP_CHOWN"]
   },
   "mounts": [
     {
