@@ -54,38 +54,31 @@ func umount(mntpoint string) error {
 
 func tempMount(dev, fstype string, options string) error {
 	tmpDir := os.TempDir()
-	var stderr bytes.Buffer
-
 	if err := mount.Mount(
 		dev,
 		tmpDir,
 		fstype,
 		options,
 	); err != nil {
-		logrus.Errorf("mount stderr: %s", stderr.String())
+		logrus.Errorf("tempMount stderr: %s", err)
 		return err
 	}
 	return nil
 }
 
-func chown(dir string, uid uint32, gid uint32) error {
-	uidgid := fmt.Sprintf("%d:%d", uid, gid)
-	var stderr bytes.Buffer
-	cmd := exec.Command(
-		"/bin/chown",
-		"-R",
-		uidgid,
+func chown(dir string, uid int, gid int) error {
+	if err := os.Chown(
 		dir,
-	)
-	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
-		logrus.Errorf("chown stderr: %s", stderr.String())
+		uid,
+		gid,
+	); err != nil {
+		logrus.Errorf("chown error: %s", err)
 		return err
 	}
 	return nil
 }
 
-func setPermissions(dev, fstype string, uid uint32, gid uint32, mountOptions string) error {
+func setPermissions(dev, fstype string, uid int, gid int, mountOptions string) error {
 	tmpDir := os.TempDir()
 
 	if err := tempMount(dev, fstype, mountOptions); err != nil {
