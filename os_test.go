@@ -10,7 +10,7 @@ import (
 
 func Test_setPermissions(t *testing.T) {
 	t.Run("test", func(t *testing.T) {
-		if got := setPermissions("none", "tmpfs", 33, 33, "-o", "size=1%"); got != nil {
+		if got := setPermissions("none", "tmpfs", 33, 33, "size=1%"); got != nil {
 			t.Errorf("setPermissions() = %v, want %v", got, nil)
 		}
 	})
@@ -19,7 +19,7 @@ func Test_setPermissions(t *testing.T) {
 func Test_chown(t *testing.T) {
 	tmpDir := os.TempDir()
 
-	if err := tempMount("none", "tmpfs", "-o", "size=1%"); err != nil {
+	if err := tempMount("none", "tmpfs", "size=1%"); err != nil {
 		t.Errorf("failed tempMount")
 	}
 
