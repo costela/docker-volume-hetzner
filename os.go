@@ -52,25 +52,16 @@ func umount(mntpoint string) error {
 	return nil
 }
 
-func tempMount(dev, fstype string, mountOptions ...string) error {
+func tempMount(dev, fstype string, options string) error {
 	tmpDir := os.TempDir()
 	var stderr bytes.Buffer
 
-	mountArgs := []string{
-		"-t",
-		fstype,
-	}
-	mountArgs = append(mountArgs, mountOptions...)
-	mountArgs = append(mountArgs,
+	if err := mount.Mount(
 		dev,
 		tmpDir,
-	)
-	cmd := exec.Command(
-		"/bin/mount",
-		mountArgs...,
-	)
-	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
+		fstype,
+		options,
+	); err != nil {
 		logrus.Errorf("mount stderr: %s", stderr.String())
 		return err
 	}
@@ -94,10 +85,10 @@ func chown(dir string, uid uint32, gid uint32) error {
 	return nil
 }
 
-func setPermissions(dev, fstype string, uid uint32, gid uint32, mountOptions ...string) error {
+func setPermissions(dev, fstype string, uid uint32, gid uint32, mountOptions string) error {
 	tmpDir := os.TempDir()
 
-	if err := tempMount(dev, fstype, mountOptions...); err != nil {
+	if err := tempMount(dev, fstype, mountOptions); err != nil {
 		// nothing to clean up yet
 		return err
 	}

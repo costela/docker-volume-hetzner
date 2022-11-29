@@ -113,7 +113,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 			gidParsed = 0
 		}
 
-		if err := setPermissions(resp.Volume.LinuxDevice, getOption("fstype", req.Options), uint32(uintParsed), uint32(gidParsed)); err != nil {
+		if err := setPermissions(resp.Volume.LinuxDevice, getOption("fstype", req.Options), uint32(uintParsed), uint32(gidParsed), ""); err != nil {
 			return errors.Wrapf(err, "could not chown '%s' to '%s:%s'", resp.Volume.LinuxDevice, uid, gid)
 		}
 	}
