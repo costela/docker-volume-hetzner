@@ -100,7 +100,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 
 	uid := getOption("uid", req.Options)
 	gid := getOption("gid", req.Options)
-	if uid != "0" || gid != "" {
+	if uid != "0" || gid != "0" {
 		// string to int
 		uintParsed, err := strconv.Atoi(uid)
 		if err != nil {
