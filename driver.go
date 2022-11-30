@@ -112,7 +112,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 		}
 
 		if err := setPermissions(resp.Volume.LinuxDevice, getOption("fstype", req.Options), uintParsed, gidParsed, ""); err != nil {
-			return errors.Wrapf(err, "could not chown '%s' to '%s:%s'", resp.Volume.LinuxDevice, uid, gid)
+			return errors.Wrapf(err, "could not chown %q to '%s:%s'", resp.Volume.LinuxDevice, uid, gid)
 		}
 	}
 
