@@ -104,13 +104,11 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 		// string to int
 		uintParsed, err := strconv.Atoi(uid)
 		if err != nil {
-			logrus.Warnf("failed to parse uid option value as uint32: %s", uid)
-			uintParsed = 0
+			return errors.Wrapf(err, "failed to parse uid option value as int: %s", gid)
 		}
 		gidParsed, err := strconv.Atoi(gid)
 		if err != nil {
-			logrus.Warnf("failed to parse gid option value as uint32: %s", gid)
-			gidParsed = 0
+			return errors.Wrapf(err, "failed to parse gid option value as int: %s", gid)
 		}
 
 		if err := setPermissions(resp.Volume.LinuxDevice, getOption("fstype", req.Options), uintParsed, gidParsed, ""); err != nil {
