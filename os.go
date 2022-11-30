@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 
@@ -36,37 +37,19 @@ func mkfs(dev, fstype string) error {
 	return nil
 }
 
-func umount(mntpoint string) error {
-	tmpDir := os.TempDir()
-	var stderr bytes.Buffer
-
-	cmd := exec.Command(
-		"/bin/umount",
-		tmpDir,
-	)
-	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
-		logrus.Errorf("umount stderr: %s", stderr.String())
+func chownIfEmpty(dir string, uid int, gid int) error {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
 		return err
 	}
-	return nil
-}
 
-func tempMount(dev, fstype string, options string) error {
-	tmpDir := os.TempDir()
-	if err := mount.Mount(
-		dev,
-		tmpDir,
-		fstype,
-		options,
-	); err != nil {
-		logrus.Errorf("tempMount stderr: %s", err)
-		return err
+	for _, file := range files {
+		isLostAndFound := file.Name() == "lost+found" && file.IsDir()
+		if !isLostAndFound {
+			return fmt.Errorf("dir is not an empty Hetzner Volume. Will not chown.")
+		}
 	}
-	return nil
-}
 
-func chown(dir string, uid int, gid int) error {
 	if err := os.Chown(
 		dir,
 		uid,
@@ -79,20 +62,28 @@ func chown(dir string, uid int, gid int) error {
 }
 
 func setPermissions(dev, fstype string, uid int, gid int, mountOptions string) error {
-	tmpDir := os.TempDir()
+	tmpDir, err := os.MkdirTemp(os.TempDir(), "mnt-*")
+	if err != nil {
+		return fmt.Errorf("failed creating temp dir for setting permissions")
+	}
 
-	if err := tempMount(dev, fstype, mountOptions); err != nil {
+	if err := mount.Mount(
+		dev,
+		tmpDir,
+		fstype,
+		mountOptions,
+	); err != nil {
 		// nothing to clean up yet
 		return err
 	}
 
-	if err := chown(tmpDir, uid, gid); err != nil {
+	if err := os.Chown(tmpDir, uid, gid); err != nil {
 		// clean up
-		if umountErr := umount(tmpDir); umountErr != nil {
+		if unmountErr := mount.Unmount(tmpDir); unmountErr != nil {
 			logrus.Errorf("failed unmounting while cleaning up after error in chown")
 		}
 		return err
 	}
 
-	return umount(tmpDir)
+	return mount.Unmount(tmpDir)
 }

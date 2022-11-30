@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"syscall"
 	"testing"
 
+	"github.com/docker/docker/pkg/mount"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,15 +19,18 @@ func Test_setPermissions(t *testing.T) {
 }
 
 func Test_chown(t *testing.T) {
-	tmpDir := os.TempDir()
+	tmpDir, err := os.MkdirTemp(os.TempDir(), "mnt-*")
+	if err != nil {
+		t.Errorf("failed creating temp dir")
+	}
 
-	if err := tempMount("none", "tmpfs", "size=1%"); err != nil {
+	if err := mount.Mount("none", tmpDir, "tmpfs", "size=1%"); err != nil {
 		t.Errorf("failed tempMount")
 	}
 
-	if err := chown(tmpDir, 33, 33); err != nil {
+	if err := chownIfEmpty(tmpDir, 33, 33); err != nil {
 		// clean up
-		if umountErr := umount(tmpDir); umountErr != nil {
+		if unmountErr := mount.Unmount(tmpDir); unmountErr != nil {
 			logrus.Errorf("failed unmounting while cleaning up after error in chown")
 		}
 		t.Errorf("failed chown command")
@@ -41,8 +46,8 @@ func Test_chown(t *testing.T) {
 		gid = stat.Gid
 	}
 
-	if err := umount(tmpDir); err != nil {
-		t.Errorf("failed umount command")
+	if err := mount.Unmount(tmpDir); err != nil {
+		t.Errorf("failed unmount command")
 	}
 
 	if uid != 33 {
@@ -50,6 +55,88 @@ func Test_chown(t *testing.T) {
 	}
 
 	if gid != 33 {
+		t.Errorf("mount had wrong gid, got %d", gid)
+	}
+}
+
+func Test_chownIfEmptyIgnoresLostAndFound(t *testing.T) {
+	tmpDir, err := os.MkdirTemp(os.TempDir(), "mnt-*")
+	if err != nil {
+		t.Errorf("failed creating temp dir")
+	}
+
+	if err := mount.Mount("none", tmpDir, "tmpfs", "size=1%"); err != nil {
+		t.Errorf("failed tempMount")
+	}
+
+	os.MkdirAll(fmt.Sprintf("%s/lost+found", tmpDir), 0644)
+	if err := chownIfEmpty(tmpDir, 33, 33); err != nil {
+		// clean up
+		if unmountErr := mount.Unmount(tmpDir); unmountErr != nil {
+			logrus.Errorf("failed unmounting while cleaning up after error in chown")
+		}
+		t.Errorf("failed chown command")
+	}
+
+	var uid uint32
+	var gid uint32
+
+	info, err := os.Stat(tmpDir)
+	if err == nil {
+		stat := info.Sys().(*syscall.Stat_t)
+		uid = stat.Uid
+		gid = stat.Gid
+	}
+
+	if err := mount.Unmount(tmpDir); err != nil {
+		t.Errorf("failed unmount command")
+	}
+
+	if uid != 33 {
+		t.Errorf("mount had wrong uid, got %d", uid)
+	}
+
+	if gid != 33 {
+		t.Errorf("mount had wrong gid, got %d", gid)
+	}
+}
+
+func Test_chownIfEmptyWithNonEmptyDirectory(t *testing.T) {
+	tmpDir, err := os.MkdirTemp(os.TempDir(), "mnt-*")
+	if err != nil {
+		t.Errorf("failed creating temp dir")
+	}
+
+	if err := mount.Mount("none", tmpDir, "tmpfs", "size=1%"); err != nil {
+		t.Errorf("failed tempMount")
+	}
+
+	os.WriteFile(fmt.Sprintf("%s/somefile.txt", tmpDir), []byte("hello\ngo\n"), 0644)
+	errAfterFileCreated := chownIfEmpty(tmpDir, 34, 34)
+
+	var uid uint32
+	var gid uint32
+
+	info, err := os.Stat(tmpDir)
+	if err == nil {
+		stat := info.Sys().(*syscall.Stat_t)
+		uid = stat.Uid
+		gid = stat.Gid
+	}
+
+	if err := mount.Unmount(tmpDir); err != nil {
+		t.Errorf("failed unmount command")
+	}
+
+	if errAfterFileCreated == nil {
+		t.Errorf("chownIfEmpty succeeded even though file was in directory")
+	}
+
+	if uid != 0 {
+		t.Errorf("mount had wrong uid, got %d", uid)
+	}
+
+	if gid != 0 {
 		t.Errorf("mount had wrong gid, got %d", gid)
 	}
 }
