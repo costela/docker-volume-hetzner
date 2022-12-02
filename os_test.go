@@ -11,11 +11,9 @@ import (
 )
 
 func Test_setPermissions(t *testing.T) {
-	t.Run("test", func(t *testing.T) {
-		if got := setPermissions("none", "tmpfs", 33, 33, "size=1%"); got != nil {
-			t.Errorf("setPermissions() = %v, want %v", got, nil)
-		}
-	})
+	if got := setPermissions("none", "tmpfs", 33, 33, "size=1%"); got != nil {
+		t.Errorf("setPermissions() = %v, want %v", got, nil)
+	}
 }
 
 func Test_chown(t *testing.T) {

@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 
@@ -38,7 +37,7 @@ func mkfs(dev, fstype string) error {
 }
 
 func chownIfEmpty(dir string, uid int, gid int) error {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return err
 	}
