@@ -63,7 +63,7 @@ func chownIfEmpty(dir string, uid int, gid int) error {
 func setPermissions(dev, fstype string, uid int, gid int, mountOptions string) error {
 	tmpDir, err := os.MkdirTemp(os.TempDir(), "mnt-*")
 	if err != nil {
-		return fmt.Errorf("failed creating temp dir for setting permissions")
+		return fmt.Errorf("failed creating temp dir for setting permissions: %w", err)
 	}
 
 	if err := mount.Mount(
