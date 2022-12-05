@@ -67,7 +67,10 @@ func Test_chownIfEmptyIgnoresLostAndFound(t *testing.T) {
 		t.Errorf("failed tempMount")
 	}
 
-	os.MkdirAll(fmt.Sprintf("%s/lost+found", tmpDir), 0644)
+	if err := os.MkdirAll(fmt.Sprintf("%s/lost+found", tmpDir), 0o644); err != nil {
+		t.Errorf("failed MkdirAll")
+	}
+
 	if err := chownIfEmpty(tmpDir, 33, 33); err != nil {
 		// clean up
 		if unmountErr := mount.Unmount(tmpDir); unmountErr != nil {
@@ -109,7 +112,9 @@ func Test_chownIfEmptyWithNonEmptyDirectory(t *testing.T) {
 		t.Errorf("failed tempMount")
 	}
 
-	os.WriteFile(fmt.Sprintf("%s/somefile.txt", tmpDir), []byte("hello\ngo\n"), 0644)
+	if err := os.WriteFile(fmt.Sprintf("%s/somefile.txt", tmpDir), []byte("hello\ngo\n"), 0o644); err != nil {
+		t.Errorf("failed WriteFile")
+	}
 	errAfterFileCreated := chownIfEmpty(tmpDir, 34, 34)
 
 	var uid uint32

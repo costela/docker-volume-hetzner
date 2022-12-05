@@ -85,12 +85,6 @@ func Test_unprefixedName(t *testing.T) {
 	}
 }
 
-type testHetznerClient struct{}
-
-func (t testHetznerClient) Volume() *hetznerVolumeClienter {
-	return nil
-}
-
 func Test_hetznerDriver_Create(t *testing.T) {
 	type fields struct {
 		client hetznerClienter
