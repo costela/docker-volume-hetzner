@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"os"
+	"path"
 	"syscall"
 	"testing"
 
@@ -11,20 +11,13 @@ import (
 )
 
 func Test_setPermissions(t *testing.T) {
-	if got := setPermissions("none", "tmpfs", 33, 33, "size=1%"); got != nil {
+	if got := setPermissions("none", "tmpfs", 33, 33); got != nil {
 		t.Errorf("setPermissions() = %v, want %v", got, nil)
 	}
 }
 
 func Test_chown(t *testing.T) {
-	tmpDir, err := os.MkdirTemp(os.TempDir(), "mnt-*")
-	if err != nil {
-		t.Errorf("failed creating temp dir")
-	}
-
-	if err := mount.Mount("none", tmpDir, "tmpfs", "size=1%"); err != nil {
-		t.Errorf("failed tempMount")
-	}
+	tmpDir := t.TempDir()
 
 	if err := chownIfEmpty(tmpDir, 33, 33); err != nil {
 		// clean up
@@ -44,10 +37,6 @@ func Test_chown(t *testing.T) {
 		gid = stat.Gid
 	}
 
-	if err := mount.Unmount(tmpDir); err != nil {
-		t.Errorf("failed unmount command")
-	}
-
 	if uid != 33 {
 		t.Errorf("mount had wrong uid, got %d", uid)
 	}
@@ -58,16 +47,9 @@ func Test_chown(t *testing.T) {
 }
 
 func Test_chownIfEmptyIgnoresLostAndFound(t *testing.T) {
-	tmpDir, err := os.MkdirTemp(os.TempDir(), "mnt-*")
-	if err != nil {
-		t.Errorf("failed creating temp dir")
-	}
+	tmpDir := t.TempDir()
 
-	if err := mount.Mount("none", tmpDir, "tmpfs", "size=1%"); err != nil {
-		t.Errorf("failed tempMount")
-	}
-
-	if err := os.MkdirAll(fmt.Sprintf("%s/lost+found", tmpDir), 0o644); err != nil {
+	if err := os.MkdirAll(path.Join(tmpDir, "lost+found"), 0o644); err != nil {
 		t.Errorf("failed MkdirAll")
 	}
 
@@ -89,10 +71,6 @@ func Test_chownIfEmptyIgnoresLostAndFound(t *testing.T) {
 		gid = stat.Gid
 	}
 
-	if err := mount.Unmount(tmpDir); err != nil {
-		t.Errorf("failed unmount command")
-	}
-
 	if uid != 33 {
 		t.Errorf("mount had wrong uid, got %d", uid)
 	}
@@ -103,16 +81,9 @@ func Test_chownIfEmptyIgnoresLostAndFound(t *testing.T) {
 }
 
 func Test_chownIfEmptyWithNonEmptyDirectory(t *testing.T) {
-	tmpDir, err := os.MkdirTemp(os.TempDir(), "mnt-*")
-	if err != nil {
-		t.Errorf("failed creating temp dir")
-	}
+	tmpDir := t.TempDir()
 
-	if err := mount.Mount("none", tmpDir, "tmpfs", "size=1%"); err != nil {
-		t.Errorf("failed tempMount")
-	}
-
-	if err := os.WriteFile(fmt.Sprintf("%s/somefile.txt", tmpDir), []byte("hello\ngo\n"), 0o644); err != nil {
+	if err := os.WriteFile(path.Join(tmpDir, "somefile.txt"), []byte("hello\ngo\n"), 0o644); err != nil {
 		t.Errorf("failed WriteFile")
 	}
 	errAfterFileCreated := chownIfEmpty(tmpDir, 34, 34)
@@ -125,10 +96,6 @@ func Test_chownIfEmptyWithNonEmptyDirectory(t *testing.T) {
 		stat := info.Sys().(*syscall.Stat_t)
 		uid = stat.Uid
 		gid = stat.Gid
-	}
-
-	if err := mount.Unmount(tmpDir); err != nil {
-		t.Errorf("failed unmount command")
 	}
 
 	if errAfterFileCreated == nil {

@@ -110,7 +110,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 			return fmt.Errorf("parsing gid option value as integer: %s: %w", gid, err)
 		}
 
-		if err := setPermissions(resp.Volume.LinuxDevice, getOption("fstype", req.Options), uintParsed, gidParsed, ""); err != nil {
+		if err := setPermissions(resp.Volume.LinuxDevice, getOption("fstype", req.Options), uintParsed, gidParsed); err != nil {
 			return fmt.Errorf("chown %q to '%s:%s': %w", resp.Volume.LinuxDevice, uid, gid, err)
 		}
 	}

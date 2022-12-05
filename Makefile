@@ -5,7 +5,7 @@ all: create
 
 # requires superuser for tmpfs mounts in tests
 test:
-	sudo go test
+	go test -v ./...
 
 clean:
 	@rm -rf ./plugin
