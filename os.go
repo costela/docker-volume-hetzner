@@ -60,29 +60,37 @@ func chownIfEmpty(dir string, uid int, gid int) error {
 	return nil
 }
 
-func setPermissions(dev, fstype string, uid int, gid int, mountOptions string) error {
+func setPermissions(dev, fstype string, uid int, gid int) (err error) {
 	tmpDir, err := os.MkdirTemp(os.TempDir(), "mnt-*")
 	if err != nil {
-		return fmt.Errorf("failed creating temp dir for setting permissions: %w", err)
+		return fmt.Errorf("creating temp dir for chmod: %w", err)
 	}
 
 	if err := mount.Mount(
 		dev,
 		tmpDir,
 		fstype,
-		mountOptions,
+		"",
 	); err != nil {
 		// nothing to clean up yet
-		return err
+		return fmt.Errorf("mounting: %w", err)
 	}
+
+	defer func() {
+		// clean up
+		if unmountErr := mount.Unmount(tmpDir); err == nil && unmountErr != nil {
+			err = fmt.Errorf("unmounting after chown: %w", unmountErr)
+			return
+		}
+
+		if rmErr := os.Remove(tmpDir); err == nil && rmErr != nil {
+			err = rmErr
+		}
+	}()
 
 	if err := os.Chown(tmpDir, uid, gid); err != nil {
-		// clean up
-		if unmountErr := mount.Unmount(tmpDir); unmountErr != nil {
-			logrus.Errorf("failed unmounting while cleaning up after error in chown")
-		}
-		return err
+		return fmt.Errorf("chowning: %w", err)
 	}
 
-	return mount.Unmount(tmpDir)
+	return nil
 }
