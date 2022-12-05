@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/docker/docker v1.13.1
 	github.com/docker/go-plugins-helpers v0.0.0-20180917142844-39aeefe5db4e
-	github.com/hashicorp/go-multierror v1.0.0
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hetznercloud/hcloud-go v1.38.0
 	github.com/sirupsen/logrus v1.6.0
 )
