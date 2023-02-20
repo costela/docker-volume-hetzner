@@ -3,7 +3,7 @@ module github.com/costela/docker-volume-hetzner
 go 1.19
 
 require (
-	github.com/docker/docker v1.13.1
+	github.com/docker/docker v20.10.23+incompatible
 	github.com/docker/go-plugins-helpers v0.0.0-20180917142844-39aeefe5db4e
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hetznercloud/hcloud-go v1.40.0
@@ -19,6 +19,8 @@ require (
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
+	github.com/moby/sys/mount v0.3.3 // indirect
+	github.com/moby/sys/mountinfo v0.6.2 // indirect
 	github.com/prometheus/client_golang v1.11.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.26.0 // indirect
