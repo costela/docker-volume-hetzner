@@ -36,30 +36,6 @@ func mkfs(dev, fstype string) error {
 	return nil
 }
 
-func chownIfEmpty(dir string, uid int, gid int) error {
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		return err
-	}
-
-	for _, file := range files {
-		isLostAndFound := file.Name() == "lost+found" && file.IsDir()
-		if !isLostAndFound {
-			return fmt.Errorf("dir is not an empty Hetzner Volume. Will not chown.")
-		}
-	}
-
-	if err := os.Chown(
-		dir,
-		uid,
-		gid,
-	); err != nil {
-		logrus.Errorf("chown error: %s", err)
-		return err
-	}
-	return nil
-}
-
 func setPermissions(dev, fstype string, uid int, gid int) (err error) {
 	tmpDir, err := os.MkdirTemp(os.TempDir(), "mnt-*")
 	if err != nil {
