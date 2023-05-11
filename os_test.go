@@ -1,13 +1,7 @@
 package main
 
 import (
-	"os"
-	"path"
-	"syscall"
 	"testing"
-
-	"github.com/docker/docker/pkg/mount"
-	"github.com/sirupsen/logrus"
 )
 
 func Test_setPermissions(t *testing.T) {
