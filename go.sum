@@ -26,8 +26,8 @@ github.com/hashicorp/errwrap v1.0.0 h1:hLrqtEDnRye3+sgx6z4qVLNuviH3MR5aQ0ykNJa/U
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+lD48awMYo=
 github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
-github.com/hetznercloud/hcloud-go v1.44.0 h1:zMqXHs9crinVy7SkaVCREk7hN2THqxPCEKZ4H3mY2rI=
-github.com/hetznercloud/hcloud-go v1.44.0/go.mod h1:aAUGxSfSnB8/lVXHNEDxtCT1jykaul8kqjD7f5KQXF8=
+github.com/hetznercloud/hcloud-go v1.45.1 h1:nl0OOklFfQT5J6AaNIOhl5Ruh3fhmGmhvZEqHbibVuk=
+github.com/hetznercloud/hcloud-go v1.45.1/go.mod h1:aAUGxSfSnB8/lVXHNEDxtCT1jykaul8kqjD7f5KQXF8=
 github.com/matttproud/golang_protobuf_extensions v1.0.4 h1:mmDVorXM7PCGKw94cs5zkfA9PSy5pEvNWRP0ET0TIVo=
 github.com/matttproud/golang_protobuf_extensions v1.0.4/go.mod h1:BSXmuO+STAnVfrANrmjBb36TMTDstsz7MSK+HVaYKv4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
