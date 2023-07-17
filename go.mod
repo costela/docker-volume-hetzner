@@ -6,7 +6,7 @@ require (
 	github.com/docker/docker v1.13.1
 	github.com/docker/go-plugins-helpers v0.0.0-20180917142844-39aeefe5db4e
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/hetznercloud/hcloud-go v1.47.0
+	github.com/hetznercloud/hcloud-go v1.48.0
 	github.com/sirupsen/logrus v1.9.3
 )
 
@@ -23,8 +23,8 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.10.1 // indirect
-	golang.org/x/net v0.11.0 // indirect
-	golang.org/x/sys v0.9.0 // indirect
-	golang.org/x/text v0.10.0 // indirect
+	golang.org/x/net v0.12.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/text v0.11.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )
