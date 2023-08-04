@@ -12,7 +12,7 @@ clean:
 	@docker container rm -vf tmp_plugin_build || true
 
 rootfs: clean
-	docker image build -t ${PLUGIN_NAME}:rootfs .
+	docker image build --platform=linux/${ARCH} -t ${PLUGIN_NAME}:rootfs .
 	mkdir -p ./plugin/rootfs
 	docker container create --name tmp_plugin_build ${PLUGIN_NAME}:rootfs
 	docker container export tmp_plugin_build | tar -x -C ./plugin/rootfs
