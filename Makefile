@@ -1,5 +1,6 @@
 PLUGIN_NAME = costela/docker-volume-hetzner
 PLUGIN_TAG ?= $(shell git describe --tags --exact-match 2> /dev/null || echo dev)
+ARCH = amd64
 
 all: create
 
