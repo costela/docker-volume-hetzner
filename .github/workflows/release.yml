@@ -41,7 +41,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - id: Export RELEASE_VERSION
-        run: echo "RELEASE_VERSION=${GITHUB_REF:11}" >> $GITHUB_ENV
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - run: make push PLUGIN_NAME=ghcr.io/s4ke/docker-volume-hetzner PLUGIN_TAG=$RELEASE_VERSION-${{ matrix.arch }} ARCH=${{ matrix.arch }}
