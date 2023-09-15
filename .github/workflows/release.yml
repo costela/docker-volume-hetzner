@@ -44,4 +44,13 @@ jobs:
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - run: make push PLUGIN_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }} PLUGIN_TAG=$RELEASE_VERSION-${{ matrix.arch }} ARCH=${{ matrix.arch }}
+      - run: |
+          make create PLUGIN_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }} PLUGIN_TAG=$RELEASE_VERSION-arm64 ARCH=arm64
+          make create PLUGIN_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }} PLUGIN_TAG=$RELEASE_VERSION-amd64 ARCH=amd64
+
+      - run: |
+          docker manifest create ghcr.io/${{ github.repository_owner }}/${{ github.repository }} \
+            --amend ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$RELEASE_VERSION-arm64 \
+            --amend ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$RELEASE_VERSION-amd64
+          
+          docker push ghcr.io/${{ github.repository_owner }}/${{ github.repository }}
