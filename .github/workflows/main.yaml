@@ -23,12 +23,6 @@ jobs:
 
       - run: make test
   test_build:
-    strategy:
-      matrix:
-        arch:
-        - arm64
-        - amd64
-
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
