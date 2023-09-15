@@ -38,6 +38,7 @@ github.com/hetznercloud/hcloud-go v1.48.0 h1:b6x0ABNYJr8zVX9sE1kCNMU/sndzI8vmZjx
 github.com/hetznercloud/hcloud-go v1.48.0/go.mod h1:VzDWThl47lOnZXY0q5/LPFD+M62pfe/52TV+mOrpp9Q=
 github.com/hetznercloud/hcloud-go v1.50.0 h1:vS9tJvmSRwgDpMLmPnThGN87Rz8OMP3D4M3rWm8QHEQ=
 github.com/hetznercloud/hcloud-go v1.50.0/go.mod h1:VzDWThl47lOnZXY0q5/LPFD+M62pfe/52TV+mOrpp9Q=
+github.com/hetznercloud/hcloud-go/v2 v2.2.0 h1:UzuqXXoy9+mMS2GKV9ZKF5BqvFkOJwW0XiSwEqGNxn0=
 github.com/hetznercloud/hcloud-go/v2 v2.2.0/go.mod h1:4iUG2NG8b61IAwNx6UsMWQ6IfIf/i1RsG0BbsKAyR5Q=
 github.com/matttproud/golang_protobuf_extensions v1.0.4 h1:mmDVorXM7PCGKw94cs5zkfA9PSy5pEvNWRP0ET0TIVo=
 github.com/matttproud/golang_protobuf_extensions v1.0.4/go.mod h1:BSXmuO+STAnVfrANrmjBb36TMTDstsz7MSK+HVaYKv4=

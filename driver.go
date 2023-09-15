@@ -10,10 +10,10 @@ import (
 
 	"github.com/docker/docker/pkg/mount"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hetznercloud/hcloud-go/v2/hcloud"
 	"github.com/sirupsen/logrus"
 
 	"github.com/docker/go-plugins-helpers/volume"
-	"github.com/hetznercloud/hcloud-go/hcloud"
 )
 
 // used in methods that take &bools

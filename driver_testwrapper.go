@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"github.com/hetznercloud/hcloud-go/hcloud"
+	"github.com/hetznercloud/hcloud-go/v2/hcloud"
 )
 
 // these types wrap hcloud.Client to make mocking easier
@@ -24,7 +24,7 @@ type hetznerVolumeClienter interface {
 }
 
 type hetznerServerClienter interface {
-	GetByID(ctx context.Context, id int) (*hcloud.Server, *hcloud.Response, error)
+	GetByID(ctx context.Context, id int64) (*hcloud.Server, *hcloud.Response, error)
 	GetByName(ctx context.Context, name string) (*hcloud.Server, *hcloud.Response, error)
 }
 
