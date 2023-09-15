@@ -13,9 +13,6 @@ jobs:
       matrix:
         go: [ 1.19.x ]
         os: [ ubuntu-latest ]
-        arch:
-        - arm64
-        - amd64
     name: ${{ matrix.os }}/go${{ matrix.go }}
     runs-on: ${{ matrix.os }}
     steps:
