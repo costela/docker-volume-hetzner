@@ -27,6 +27,11 @@ jobs:
       - run: make test
   test_build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+        - arm64
+        - amd64
     steps:
       - uses: actions/checkout@v3
 
@@ -47,6 +52,16 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - run: |
-          docker manifest create ghcr.io/${{ github.repository_owner }}/${{ github.repository }} \
-            --amend ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$(shell git describe --tags --exact-match 2> /dev/null || echo dev)-arm64 \
-            --amend ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$(shell git describe --tags --exact-match 2> /dev/null || echo dev)-amd64
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:$(shell git describe --tags --exact-match 2> /dev/null || echo dev)
+
+          docker manifest create $IMAGE_NAME \
+            --amend $IMAGE_NAME-arm64 \
+            --amend $IMAGE_NAME-amd64
+
+          docker manifest annotate --arch amd64 $IMAGE_NAME \
+            $IMAGE_NAME-amd64
+
+          docker manifest annotate --arch arm64 $IMAGE_NAME \
+            $IMAGE_NAME-arm64
+
+          docker manifest inspect $IMAGE_NAME
