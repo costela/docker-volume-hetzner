@@ -34,8 +34,8 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - run: |
-          make create PLUGIN_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }} PLUGIN_TAG=$(shell git describe --tags --exact-match 2> /dev/null || echo dev)-arm64 ARCH=arm64
           make create PLUGIN_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }} PLUGIN_TAG=$(shell git describe --tags --exact-match 2> /dev/null || echo dev)-amd64 ARCH=amd64
+          make create PLUGIN_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }} PLUGIN_TAG=$(shell git describe --tags --exact-match 2> /dev/null || echo dev)-arm64 ARCH=arm64
 
             docker manifest create ghcr.io/${{ github.repository_owner }}/${{ github.repository }} \
             --amend ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$(shell git describe --tags --exact-match 2> /dev/null || echo dev)-arm64 \
