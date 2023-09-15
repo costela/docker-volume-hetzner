@@ -16,7 +16,7 @@ jobs:
         arch:
         - arm64
         - amd64
-    name: ${{ matrix.os }}/go${{ matrix.go }}
+    name: ${{ matrix.os }}/go${{ matrix.go }} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
