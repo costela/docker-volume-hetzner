@@ -13,6 +13,9 @@ jobs:
       matrix:
         go: [ 1.19.x ]
         os: [ ubuntu-latest ]
+        arch:
+        - arm64
+        - amd64
     name: ${{ matrix.os }}/go${{ matrix.go }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -56,9 +59,19 @@ jobs:
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - run: |
-          docker manifest create ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:$RELEASE_VERSION \
-            --amend ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$RELEASE_VERSION-arm64 \
-            --amend ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$RELEASE_VERSION-amd64
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:$RELEASE_VERSION
+
+          docker manifest create $IMAGE_NAME \
+            --amend $IMAGE_NAME-arm64 \
+            --amend $IMAGE_NAME-amd64
+
+          docker manifest annotate --arch amd64 $IMAGE_NAME \
+            $IMAGE_NAME-amd64
+
+          docker manifest annotate --arch arm64 $IMAGE_NAME \
+            $IMAGE_NAME-arm64
+
+          docker manifest inspect $IMAGE_NAME
 
       - run: |          
-          docker push ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:$RELEASE_VERSION
+          docker manifest push ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:$RELEASE_VERSION
