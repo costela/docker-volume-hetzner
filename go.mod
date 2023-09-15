@@ -6,7 +6,6 @@ require (
 	github.com/docker/docker v1.13.1
 	github.com/docker/go-plugins-helpers v0.0.0-20211224144127-6eecb7beb651
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/hetznercloud/hcloud-go v1.50.0
 	github.com/hetznercloud/hcloud-go/v2 v2.2.0
 	github.com/sirupsen/logrus v1.9.3
 )
