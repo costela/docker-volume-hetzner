@@ -45,9 +45,9 @@ jobs:
           make create PLUGIN_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }} PLUGIN_TAG=$RELEASE_VERSION-arm64 ARCH=arm64
           make create PLUGIN_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }} PLUGIN_TAG=$RELEASE_VERSION-amd64 ARCH=amd64
 
-      - run: |
           docker manifest create ghcr.io/${{ github.repository_owner }}/${{ github.repository }} \
             --amend ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$RELEASE_VERSION-arm64 \
             --amend ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-$RELEASE_VERSION-amd64
-          
+
+      - run: |          
           docker push ghcr.io/${{ github.repository_owner }}/${{ github.repository }}
