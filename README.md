@@ -11,7 +11,7 @@ This plugin manages docker volumes using Hetzner Cloud's volumes.
 
 To install the plugin, run the following command:
 ```shell
-$ docker plugin install --alias hetzner ghcr.io/costela/docker-volume-hetzner
+$ docker plugin install --alias hetzner ghcr.io/costela/docker-volume-hetzner:...-amd64
 ```
 
 When using Docker Swarm, this should be done on all nodes in the cluster.
