@@ -1,6 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/costela/docker-volume-hetzner)](https://goreportcard.com/report/github.com/costela/docker-volume-hetzner)
 ![tests](https://github.com/costela/docker-volume-hetzner/actions/workflows/main.yaml/badge.svg)
-[![Docker Hub Version](https://img.shields.io/badge/dynamic/json.svg?label=hub&url=https%3A%2F%2Findex.docker.io%2Fv1%2Frepositories%2Fcostela%2Fdocker-volume-hetzner%2Ftags&query=%24[-1:].name&colorB=green)](https://hub.docker.com/r/costela/docker-volume-hetzner)
 
 # Docker Volume Plugin for Hetzner Cloud
 
@@ -12,7 +11,7 @@ This plugin manages docker volumes using Hetzner Cloud's volumes.
 
 To install the plugin, run the following command:
 ```shell
-$ docker plugin install --alias hetzner costela/docker-volume-hetzner
+$ docker plugin install --alias hetzner ghcr.io/costela/docker-volume-hetzner
 ```
 
 When using Docker Swarm, this should be done on all nodes in the cluster.
