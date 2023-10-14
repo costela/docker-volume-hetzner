@@ -1,4 +1,4 @@
-FROM golang:1.19.3-alpine as builder
+FROM --platform=$TARGETPLATFORM golang:1.19.3-alpine as builder
 
 ENV CGO_ENABLED=0
 
@@ -14,7 +14,7 @@ COPY . /plugin
 RUN go build -v
 
 
-FROM alpine
+FROM --platform=$TARGETPLATFORM alpine
 
 RUN apk add --update ca-certificates e2fsprogs xfsprogs
 
