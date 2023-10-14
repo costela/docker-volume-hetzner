@@ -1,9 +1,6 @@
 name: Production Build
 
 on:
-  create:
-    tags:
-      - "v*.*.*"
   push:
     tags:
       - "v*.*.*"
