@@ -1,17 +1,17 @@
-name: Production Build
+name: release
 
 on:
-  push:
+ push:
     tags:
       - "v*.*.*"
 
 jobs:
   release_build:
     env:
-      LATEST_GO: 1.19.x # version used for release
+      LATEST_GO: 1.21.x # version used for release
     strategy:
       matrix:
-        go: [ 1.19.x ]
+        go: [ 1.21.x ]
         os: [ ubuntu-latest ]
         arch:
         - arm64
