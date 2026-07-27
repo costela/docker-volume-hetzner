@@ -56,7 +56,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 	opts := hcloud.VolumeCreateOpts{
 		Name:     prefixedName,
 		Size:     size,
-		Location: srv.Datacenter.Location, // attach explicitly to be able to wait
+		Location: srv.Location, // attach explicitly to be able to wait
 		Labels:   map[string]string{"docker-volume-hetzner": ""},
 	}
 	switch f := getOption("fstype", req.Options); f {
