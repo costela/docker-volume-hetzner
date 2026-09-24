@@ -32,5 +32,5 @@ func main() {
 type bareFormatter struct{}
 
 func (bareFormatter) Format(e *logrus.Entry) ([]byte, error) {
-	return []byte(fmt.Sprintf("%s\n", e.Message)), nil
+	return fmt.Appendf(nil, "%s\n", e.Message), nil
 }
