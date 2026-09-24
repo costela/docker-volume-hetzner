@@ -13,7 +13,7 @@ func TestMain(m *testing.M) {
 		"fstype": "ext4",
 		"size":   "10",
 	} {
-		os.Setenv(k, v)
+		os.Setenv(k, v) // nolint: errcheck
 	}
 	os.Exit(m.Run())
 }

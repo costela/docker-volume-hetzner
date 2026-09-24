@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	"github.com/docker/docker/pkg/mount"
-	"github.com/hashicorp/go-multierror"
 	"github.com/hetznercloud/hcloud-go/v2/hcloud"
 	"github.com/sirupsen/logrus"
 
@@ -61,7 +61,7 @@ func (hd *hetznerDriver) Create(req *volume.CreateRequest) error {
 	}
 	switch f := getOption("fstype", req.Options); f {
 	case "xfs", "ext4":
-		opts.Format = hcloud.String(f)
+		opts.Format = new(f)
 	}
 
 	resp, _, err := hd.client.Volume().Create(context.Background(), opts)
@@ -165,7 +165,7 @@ func (hd *hetznerDriver) Get(req *volume.GetRequest) (*volume.GetResponse, error
 		return nil, fmt.Errorf("getting local mounts: %w", err)
 	}
 
-	status := make(map[string]interface{})
+	status := make(map[string]any)
 
 	mountpoint, mounted := mounts[vol.LinuxDevice]
 	if mounted {
@@ -302,7 +302,7 @@ func (hd *hetznerDriver) Mount(req *volume.MountRequest) (*volume.MountResponse,
 			mounted = true
 			break
 		}
-		merr = multierror.Append(merr, err)
+		merr = errors.Join(merr, err)
 	}
 	if !mounted {
 		return nil, fmt.Errorf("mounting %q as any of %s: %w", vol.LinuxDevice, supportedFileystemTypes, err)
