@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/docker/docker/pkg/mount"
 	"github.com/hetznercloud/hcloud-go/v2/hcloud"
+	"github.com/moby/sys/mount"
 	"github.com/sirupsen/logrus"
 
 	"github.com/docker/go-plugins-helpers/volume"

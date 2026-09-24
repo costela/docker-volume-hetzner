@@ -6,14 +6,15 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/docker/docker/pkg/mount"
+	"github.com/moby/sys/mount"
+	"github.com/moby/sys/mountinfo"
 	"github.com/sirupsen/logrus"
 )
 
 var supportedFileystemTypes = [...]string{"ext4", "xfs", "ext3", "ext2"}
 
 func getMounts() (map[string]string, error) {
-	mounts, err := mount.GetMounts()
+	mounts, err := mountinfo.GetMounts(nil)
 	if err != nil {
 		return nil, err
 	}
