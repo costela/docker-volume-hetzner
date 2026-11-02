@@ -6,7 +6,7 @@ require (
 	github.com/docker/go-plugins-helpers v0.0.0-20211224144127-6eecb7beb651
 	github.com/hetznercloud/hcloud-go/v2 v2.53.0
 	github.com/moby/sys/mount v0.3.5
-	github.com/moby/sys/mountinfo v0.7.2
+	github.com/moby/sys/mountinfo v0.7.3
 	github.com/sirupsen/logrus v1.10.2
 )
 
